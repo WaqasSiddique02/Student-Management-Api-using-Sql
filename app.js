@@ -28,7 +28,7 @@ sql.connect(config, function (err) {
 app.get("/", async function (req, res) {
   try {
     const result = await sql.query("SELECT student_id,student_name FROM student");
-    console.log(result.recordset);
+    console.log(result);
     res.send(result.recordset);
     }
   catch(err){
@@ -43,6 +43,7 @@ app.get("/:tableName", async function(req,res){
     res.send(result.recordset);
   }
   catch(err){
+    res.send("Table not found");
     console.log(err);
   }
 });
@@ -65,7 +66,44 @@ app.post("/", async function (req, res) {
   catch(err){
     console.log(err);
   }
-   
+});
+
+app.put("/:tableName", async function(req,res){
+  const tableName=req.params.tableName;
+  const columnName=req.body.column;
+  try{
+   await sql.query(`ALTER TABLE ${tableName} ADD ${columnName} VARCHAR(100)`);
+   res.send("Column Added");
+  }
+  catch(err){
+    console.log(err);
+    res.send("Column not added");
+  }
+});
+
+app.patch("/",async function(req,res){
+  const std_id=req.body.student_id;
+  const std_Address=req.body.address;
+  try{
+    await sql.query(`UPDATE student SET address = '${std_Address}' WHERE student_id = ${std_id}`);
+    res.send("Updated Successfully");
+  }
+  catch(err){
+    res.send("Field not updated");
+    console.log(err);
+  }
+});
+
+app.delete("/:tableName", async function(req,res){
+  const tableName=req.params.tableName;
+  const columnName=req.body.column;
+  try{
+  await sql.query(`ALTER TABLE ${tableName} DROP COLUMN ${columnName}`);
+  res.send("Column Deleted");
+}
+catch(err){
+  res.send("Error ,Field not deleted");
+}
 });
 
 app.listen(3000, function (req, res) {
